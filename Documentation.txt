@@ -1,0 +1,5 @@
+// creating project - npm init projectName
+npm init nodedemo
+
+// running project
+node index.js

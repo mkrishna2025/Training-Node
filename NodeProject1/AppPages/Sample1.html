@@ -1,0 +1,105 @@
+<html>
+<header>
+	<script> 
+		// Creating framework to render page dynamically 
+		var TestFramework = {
+			version: 1.0,
+			renderComponent: function(item, whereToRender){
+			
+				var rootDiv = document.getElementById(whereToRender);
+				
+				if(item.render){
+					rootDiv.innerHTML = item.render();
+				} else {
+					rootDiv.innerHTML = item;
+				}
+				
+				
+				/*var temp = document.createElement('div');
+				temp.innerHTML = item;
+				
+				rootDiv.appendChild(temp.firstChild);*/
+				
+				
+				/*
+				var temp = document.createElement('div');
+				if(item.render){
+					temp.innerHTML = item.render();
+					item.divId = whereToRender;
+				} else {
+					temp.innerHTML = item;
+				}
+				
+				var htmlObject = temp.firstChild;
+				if(rootDiv.firstChild){
+					rootDiv.removeChild(rootDiv.firstChild);
+				}
+				rootDiv.appendChild(htmlObject);
+				if(item.componentDidMount){
+					item.componentDidMount();
+				}*/
+			},
+			createClass: function(options){
+				return function(){
+					for(var index in options){
+						var prop = options[index];
+						this[index] = prop;
+					}
+					this.setState = function(props){
+						for(var index in props){
+							var prop = props[index];
+							this.state[index] = prop;
+						}
+						TestFramework.renderComponent(this, this.divId);
+					}
+				};
+			},
+			// creating instance 
+			createInstance: function(className){
+				var instance = new className();
+				instance.constructor();
+				instance.componentWillMount();
+				TestFramework.PageMapper[instance.id] = instance;
+				return instance;
+			},
+			PageMapper: {
+			}
+		}
+	</script>
+	<script>
+		function onLoad(){
+			var App = TestFramework.createClass({
+				id: 'MainScreen',
+				constructor: function(){
+					debugger;
+					this.state = {
+						headerText: 'Hello World'
+					}
+				},
+				componentWillMount: function(){
+					debugger;
+				},
+				componentDidMount: function(){
+					debugger;
+					//this.setState({headerText: 'Component Updated'});
+				},
+				onButtonClick: function(options){
+					var instance = TestFramework.PageMapper[options];
+					instance.setState({headerText: 'Text Modified'});
+				},
+				render: function(){
+					var button = '<button type="button" onclick="('+this.onButtonClick+')(\'MainScreen\')">Change Header</button>';
+					return '<div><h1>'+this.state.headerText+'<h1>'+button+'<table style="width:100%"><tr><th>Firstname</th><th>Lastname</th><th>Age</th></tr><tr><td>Jill</td><td>Smith</td> <td>50</td></tr><tr><td>Eve</td><td>Jackson</td><td>94</td></tr></table></div>';
+				}
+			});
+			
+			//document.getElementById('root').innerHTML = 'Hello World';
+			//TestFramework.renderComponent('Hello World', 'root');
+			TestFramework.renderComponent(TestFramework.createInstance(App), 'root');
+		}
+	</script>
+</header>
+<body onload="onLoad()">
+	<div id="root"></div>
+</body>
+</html>
